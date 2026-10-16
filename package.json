@@ -1,0 +1,27 @@
+{
+  "name": "f1-iot-telemetry-sim",
+  "version": "1.0.0",
+  "description": "Application of IoT in Motorsport: Real-Time Race Car Telemetry Monitoring and Performance Analysis",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node test-syntax.js && node test-server.js"
+  },
+  "keywords": [
+    "motorsport",
+    "formula-1",
+    "telemetry",
+    "iot",
+    "threejs",
+    "three-dimensional-simulation",
+    "esp32",
+    "engineering-analytics"
+  ],
+  "author": "Engineering Capstone Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.18.0"
+  }
+}

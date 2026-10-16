@@ -1,0 +1,78 @@
+{
+  "test_dataset_metadata": {
+    "project": "Application of IoT in Motorsport: Real-Time Race Car Telemetry Monitoring",
+    "protocol": "JSON over WebSocket / HTTP REST",
+    "sample_rate_hz": 20,
+    "description": "Validation sample frames showing physical sensor telemetry, cornering lateral G, chicane heavy braking, and IR finish line crossing."
+  },
+  "sample_frames": [
+    {
+      "source": "esp32_prototype_devkit_v1",
+      "timestamp_ms": 1729014520100,
+      "lap": 1,
+      "lap_time_s": 14.85,
+      "speed_kmh": 318.4,
+      "accel_x_g": 0.04,
+      "accel_y_g": 0.42,
+      "accel_z_g": 0.98,
+      "gyro_z_dps": 1.2,
+      "temperature_c": 36.8,
+      "ir_trigger": false,
+      "battery_v": 3.82,
+      "rssi_dbm": -56,
+      "sensor_status": "ONLINE",
+      "annotation": "High-speed straight running with DRS open"
+    },
+    {
+      "source": "esp32_prototype_devkit_v1",
+      "timestamp_ms": 1729014524250,
+      "lap": 1,
+      "lap_time_s": 19.00,
+      "speed_kmh": 132.0,
+      "accel_x_g": -0.15,
+      "accel_y_g": -4.25,
+      "accel_z_g": 1.12,
+      "gyro_z_dps": -4.8,
+      "temperature_c": 37.1,
+      "ir_trigger": false,
+      "battery_v": 3.81,
+      "rssi_dbm": -57,
+      "sensor_status": "ONLINE",
+      "annotation": "Heavy braking zone into Turn 1 chicane (-4.25G longitudinal)"
+    },
+    {
+      "source": "esp32_prototype_devkit_v1",
+      "timestamp_ms": 1729014532600,
+      "lap": 1,
+      "lap_time_s": 27.35,
+      "speed_kmh": 224.5,
+      "accel_x_g": 3.65,
+      "accel_y_g": -0.22,
+      "accel_z_g": 1.04,
+      "gyro_z_dps": 48.6,
+      "temperature_c": 37.9,
+      "ir_trigger": false,
+      "battery_v": 3.80,
+      "rssi_dbm": -55,
+      "sensor_status": "ONLINE",
+      "annotation": "High-speed sustained cornering in Sector 2 Esses (+3.65G lateral)"
+    },
+    {
+      "source": "esp32_prototype_devkit_v1",
+      "timestamp_ms": 1729014574900,
+      "lap": 1,
+      "lap_time_s": 69.65,
+      "speed_kmh": 286.0,
+      "accel_x_g": 0.02,
+      "accel_y_g": 0.58,
+      "accel_z_g": 0.99,
+      "gyro_z_dps": 0.4,
+      "temperature_c": 38.4,
+      "ir_trigger": true,
+      "battery_v": 3.79,
+      "rssi_dbm": -58,
+      "sensor_status": "ONLINE",
+      "annotation": "Start/Finish line crossing detected by TCRT5000 optical gate"
+    }
+  ]
+}
