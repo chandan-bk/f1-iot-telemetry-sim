@@ -1,0 +1,359 @@
+/**
+ * ============================================================================
+ * PITWALL RACE ENGINEER TELEMETRY DASHBOARD STYLING
+ * Inspired by McLaren ATLAS & MoTeC i2 Pro Telemetry Suites
+ * ============================================================================
+ */
+
+#pitwall-wrapper {
+  background: #080b11;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 12px;
+}
+
+/* Custom Telemetry Scrollbar */
+#pitwall-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+#pitwall-wrapper::-webkit-scrollbar-track {
+  background: #080b11;
+}
+#pitwall-wrapper::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 3px;
+}
+
+/* Top Telemetry Status Bar */
+.telemetry-status-banner {
+  background: #0e1420;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 8px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.status-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.status-label {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.status-val {
+  color: #fff;
+  font-weight: bold;
+}
+
+/* --------------------------------------------------------------------------
+   METRICS SUMMARY ROW
+   -------------------------------------------------------------------------- */
+.metrics-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+}
+
+.metric-gauge-card {
+  background: #0e1420;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.gauge-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-val {
+  font-size: 22px;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  color: #ffffff;
+  margin: 4px 0;
+  line-height: 1;
+}
+
+.metric-sub {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+}
+
+.delta-green { color: var(--telemetry-green) !important; }
+.delta-red { color: #ff1744 !important; }
+
+.temp-norm { color: var(--telemetry-green) !important; }
+.temp-warn { color: var(--telemetry-amber) !important; }
+.temp-crit { color: #ff1744 !important; animation: blinker 1s linear infinite; }
+
+@keyframes blinker {
+  50% { opacity: 0.4; }
+}
+
+/* Horizontal input meter bars */
+.meter-track {
+  width: 100%;
+  height: 4px;
+  background: #1a2332;
+  border-radius: 2px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  width: 0%;
+  transition: width 0.05s linear;
+}
+
+.fill-throttle { background: var(--telemetry-green); }
+.fill-brake { background: #ff1744; }
+.fill-rpm { background: var(--telemetry-amber); }
+
+/* --------------------------------------------------------------------------
+   DASHBOARD 2-COLUMN MAIN BODY
+   -------------------------------------------------------------------------- */
+.dashboard-main-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .dashboard-main-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.telemetry-card {
+  background: #0e1420;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.telemetry-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 6px;
+}
+
+.header-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.header-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--telemetry-cyan);
+}
+
+/* 4-Wheel Thermal Matrix */
+.tire-matrix-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.tire-matrix-box {
+  background: #070a10;
+  border: 2px solid #29b6f6;
+  border-radius: 6px;
+  padding: 10px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.tire-pos-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 2px;
+}
+
+.tire-temp-reading {
+  font-size: 18px;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  color: #fff;
+}
+
+.tire-wear-sub, .brake-disc-sub {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   CHARTS GRID
+   -------------------------------------------------------------------------- */
+.charts-grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .charts-grid-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-box {
+  background: #0e1420;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.chart-header {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-dark);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.telemetry-canvas {
+  width: 100%;
+  height: 120px;
+  background: #090d14;
+  border-radius: 4px;
+  display: block;
+}
+
+.gg-canvas {
+  width: 100%;
+  height: 180px;
+  background: #090d14;
+  border-radius: 4px;
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   EVENT LOG & RECOMMENDATIONS
+   -------------------------------------------------------------------------- */
+.event-log-container {
+  height: 160px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.event-item {
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: #090d14;
+  border-left: 3px solid var(--border-subtle);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.event-time { color: var(--text-dark); min-width: 65px; }
+.event-subsystem { color: var(--telemetry-cyan); font-weight: bold; min-width: 80px; }
+.event-msg { color: #e2e8f0; flex: 1; }
+
+.event-item.sev-info { border-left-color: var(--telemetry-blue); }
+.event-item.sev-warning { border-left-color: var(--telemetry-amber); background: rgba(255, 171, 0, 0.05); }
+.event-item.sev-critical { border-left-color: #ff1744; background: rgba(255, 23, 68, 0.08); font-weight: bold; }
+.event-item.sev-success { border-left-color: var(--telemetry-green); }
+
+.event-empty {
+  color: var(--text-dark);
+  text-align: center;
+  padding: 40px 0;
+  font-style: italic;
+}
+
+/* Recommendation Cards */
+.rec-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rec-card {
+  background: #090d14;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.rec-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.rec-sub {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.rec-rule {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-dark);
+  background: #05070a;
+  padding: 2px 6px;
+  border-radius: 2px;
+  margin-bottom: 6px;
+}
+
+.rec-action {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--telemetry-cyan);
+}
+
+.sec-chip {
+  background: #1a2332;
+  color: #94a3b8;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-size: 10px;
+}
