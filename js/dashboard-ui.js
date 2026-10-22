@@ -34,9 +34,54 @@ class DashboardUI {
     this.ctxGg = this.chartGgCanvas ? this.chartGgCanvas.getContext('2d') : null;
 
     this.lastRenderTime = 0;
+    this.monitoredCarIndex = 0;
+    this.onSelectCarCallback = null;
   }
 
-  update(packet, playerPhysics, ai1Physics, ai2Physics, sessionState) {
+  setupCarSelector(allCars, onSelectCar) {
+    this.onSelectCarCallback = onSelectCar;
+    const container = document.getElementById('driver-pills-row');
+    if (!container) return;
+
+    let html = '';
+    allCars.forEach((car, idx) => {
+      const d = car.driver || (car.physics ? car.physics.driver : car);
+      const isLead = idx === 0 ? ' [LEAD]' : '';
+      html += `
+        <button class="driver-pill ${idx === this.monitoredCarIndex ? 'active' : ''}" data-car-idx="${idx}" style="--driver-color:${d.color};">
+          <span class="pill-color-bar" style="background:${d.color};"></span>
+          <span class="pill-num">#${d.number}</span>
+          <span class="pill-code">${d.code}${isLead}</span>
+        </button>
+      `;
+    });
+    container.innerHTML = html;
+
+    container.querySelectorAll('.driver-pill').forEach(btn => {
+      btn.onclick = () => {
+        const idx = parseInt(btn.getAttribute('data-car-idx'), 10);
+        if (this.onSelectCarCallback) {
+          this.onSelectCarCallback(idx);
+        }
+      };
+    });
+  }
+
+  setMonitoredCarIndex(idx, driverInfo) {
+    this.monitoredCarIndex = idx;
+    const badge = document.getElementById('active-driver-badge');
+    if (badge && driverInfo) {
+      badge.textContent = `#${driverInfo.number} ${driverInfo.name.toUpperCase()} (${driverInfo.team.toUpperCase()})`;
+      badge.style.borderColor = driverInfo.color;
+      badge.style.color = driverInfo.color;
+    }
+    const pills = document.querySelectorAll('.driver-pill');
+    pills.forEach((p, i) => {
+      p.classList.toggle('active', i === idx);
+    });
+  }
+
+  update(packet, playerPhysics, aiPhysicsList, monitoredPhysics, sessionState) {
     if (!packet) return;
 
     // 1. Update Top Status Bar
@@ -49,7 +94,7 @@ class DashboardUI {
     this.updateTiresAndBrakes(packet);
 
     // 4. Update Leaderboard & Sector Splits
-    this.updateLeaderboard(playerPhysics, ai1Physics, ai2Physics);
+    this.updateLeaderboard(playerPhysics, aiPhysicsList, monitoredPhysics);
 
     // 5. Update Engineering Event Log
     this.updateEventLog();
@@ -198,7 +243,7 @@ class DashboardUI {
     }
   }
 
-  updateLeaderboard(player, ...aiCarsList) {
+  updateLeaderboard(player, aiCarsList, monitoredPhysics) {
     if (!player) return;
 
     const trackLen = this.track.trackLength;
@@ -239,10 +284,16 @@ class DashboardUI {
       const s1 = c.p.sector1Time > 0 ? `${c.p.sector1Time.toFixed(2)}s` : "--.--";
       const s2 = c.p.sector2Time > 0 ? `${c.p.sector2Time.toFixed(2)}s` : "--.--";
 
-      const isYou = c.p === player ? 'class="row-player"' : '';
+      const isMonitored = monitoredPhysics && c.p === monitoredPhysics;
+      const isYou = c.p === player;
+      let rowClass = '';
+      if (isMonitored) rowClass = 'class="row-monitored"';
+      else if (isYou) rowClass = 'class="row-player"';
+
+      const monTag = isMonitored ? '<span class="live-telemetry-badge">● LIVE SENSOR</span>' : '';
 
       html += `
-        <tr ${isYou}>
+        <tr ${rowClass} data-car-code="${c.code}" style="cursor:pointer;" title="Click to monitor this car's IoT telemetry">
           <td><span class="pos-badge pos-${pos}">P${pos}</span></td>
           <td style="color:${c.color}; font-weight:bold;">#${c.num} ${c.code}</td>
           <td>${c.p.lapCount}</td>

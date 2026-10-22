@@ -187,6 +187,74 @@ class F1SimApp {
     this.postRace = new PostRaceAnalysis(this.telemetry);
   }
 
+
+  getAllCars() {
+    const list = [{
+      index: 0,
+      driver: this.playerPhysics.driver,
+      physics: this.playerPhysics,
+      model: this.playerCar,
+      isPlayer: true
+    }];
+    this.aiCars.forEach((ai, idx) => {
+      list.push({
+        index: idx + 1,
+        driver: ai.physics.driver,
+        physics: ai.physics,
+        model: ai.model,
+        isPlayer: false
+      });
+    });
+    return list;
+  }
+
+  getMonitoredPhysics() {
+    if (this.monitoredCarIndex === 0 || !this.aiCars[this.monitoredCarIndex - 1]) {
+      return this.playerPhysics;
+    }
+    return this.aiCars[this.monitoredCarIndex - 1].physics;
+  }
+
+  getMonitoredCarModel() {
+    if (this.monitoredCarIndex === 0 || !this.aiCars[this.monitoredCarIndex - 1]) {
+      return this.playerCar;
+    }
+    return this.aiCars[this.monitoredCarIndex - 1].model;
+  }
+
+  setMonitoredCarIndex(idx) {
+    const allCars = this.getAllCars();
+    if (idx < 0 || idx >= allCars.length) return;
+    this.monitoredCarIndex = idx;
+    const target = allCars[idx];
+
+    if (this.telemetry && target) {
+      this.telemetry.setTargetPhysics(target.physics);
+    }
+    if (this.dashboard && target) {
+      this.dashboard.setMonitoredCarIndex(idx, target.driver);
+    }
+  }
+
+  toggleAutoDrive() {
+    this.autoDrive = !this.autoDrive;
+    const statusSpan = document.getElementById('autodrive-status');
+    const btn = document.getElementById('btn-toggle-autodrive');
+    if (statusSpan) {
+      statusSpan.textContent = this.autoDrive ? 'ON' : 'OFF';
+    }
+    if (btn) {
+      btn.classList.toggle('active', this.autoDrive);
+    }
+    const banner = document.getElementById('hud-autopilot-banner');
+    if (banner) {
+      banner.classList.toggle('hidden', !this.autoDrive);
+    }
+    if (this.audio && this.audio.isInitialized) {
+      this.audio.playBeep(this.autoDrive ? 880 : 440, 0.12);
+    }
+  }
+
   setupInputListeners() {
     window.addEventListener('keydown', (e) => {
       if (this.audio && !this.audio.isInitialized) {
@@ -281,6 +349,8 @@ class F1SimApp {
     const modeToggle = document.getElementById('btn-toggle-iot-mode');
     const btnQuickCam = document.getElementById('btn-quick-cam');
 
+    if (btnStartAutoRace) btnStartAutoRace.onclick = () => this.startRace('AUTONOMOUS_RACE');
+    if (btnToggleAutoDrive) btnToggleAutoDrive.onclick = () => this.toggleAutoDrive();
     if (btnQuickRace) btnQuickRace.onclick = () => this.startRace('QUICK_RACE');
     if (btnTimeTrial) btnTimeTrial.onclick = () => this.startRace('TIME_TRIAL');
     if (btnHardwareMode) {

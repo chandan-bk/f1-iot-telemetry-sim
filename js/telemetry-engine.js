@@ -45,6 +45,15 @@ class TelemetryEngine {
     this.lastTrackLimitTime = 0;
   }
 
+  setTargetPhysics(newPhysics) {
+    if (!newPhysics || this.physics === newPhysics) return;
+    this.physics = newPhysics;
+    this.rollingBuffer = [];
+    this.currentLapSamples = [];
+    this.activeAlerts.clear();
+    this.brakePointTurn1 = null;
+  }
+
   update(currentSessionTimeMs) {
     if (currentSessionTimeMs - this.lastSampleTimeMs < this.sampleIntervalMs) {
       return null; // Awaiting next sampling interval

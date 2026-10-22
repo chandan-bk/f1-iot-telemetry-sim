@@ -142,7 +142,7 @@ window.F1_CONFIG = {
     {
       id: 'ai_2',
       name: 'Elena Rostova',
-      code: 'ROS',
+      code: 'ROV',
       number: 81,
       team: 'CyberGP Engineering',
       country: 'FIN',
