@@ -26,13 +26,18 @@ class F1SimApp {
 
     // Game & Session State
     this.session = {
-      mode: 'QUICK_RACE', // 'QUICK_RACE' | 'TIME_TRIAL'
+      mode: 'QUICK_RACE', // 'QUICK_RACE' | 'TIME_TRIAL' | 'AUTONOMOUS_RACE'
       state: 'READY',     // 'READY' | 'COUNTDOWN' | 'RUNNING' | 'PAUSED' | 'FINISHED'
       totalLaps: 3,
       sessionTime: 0,
       countdownTimer: 0,
       countdownLights: 0
     };
+
+    // Autonomous Mode & Monitored Telemetry Target
+    this.autoDrive = false;
+    this.monitoredCarIndex = 0;
+    this.playerAIController = null;
 
     // Subsystems
     this.track = null;
@@ -157,6 +162,9 @@ class F1SimApp {
     this.playerPhysics = new VehiclePhysics(this.playerCar, this.track, pDriver);
     this.playerPhysics.resetToGrid(0); // Pole Position
 
+    // Autonomous AI Controller for Lead Car (used in Autonomous AI Race or Auto-Drive toggle)
+    this.playerAIController = new AIDriverController(this.playerPhysics, pDriver, this.track);
+
     // 3. Build Full 5-Car AI Opponents Field (6 Cars Total on Track)
     this.aiCars = [];
     this.aiControllers = [];
@@ -178,6 +186,12 @@ class F1SimApp {
     this.telemetry = new TelemetryEngine(this.playerPhysics, this.track);
     this.bridge = new IoTTelemetryBridge();
     this.dashboard = new DashboardUI(this.telemetry, this.bridge, this.track);
+
+    if (this.dashboard && this.dashboard.setupCarSelector) {
+      this.dashboard.setupCarSelector(this.getAllCars(), (idx) => {
+        this.setMonitoredCarIndex(idx);
+      });
+    }
 
     const mapCanvas = document.getElementById('track-map-canvas');
     if (mapCanvas) {
@@ -338,6 +352,8 @@ class F1SimApp {
   }
 
   setupUIHandlers() {
+    const btnStartAutoRace = document.getElementById('btn-start-auto-race');
+    const btnToggleAutoDrive = document.getElementById('btn-toggle-autodrive');
     const btnQuickRace = document.getElementById('btn-start-quick-race');
     const btnTimeTrial = document.getElementById('btn-start-time-trial');
     const btnHardwareMode = document.getElementById('btn-hardware-mode');
@@ -394,6 +410,29 @@ class F1SimApp {
     this.aiCars.forEach((ai, idx) => {
       ai.physics.resetToGrid(idx + 1);
     });
+
+    // Configure Autonomous Driving Mode
+    if (mode === 'AUTONOMOUS_RACE') {
+      this.autoDrive = true;
+      this.cameraMode = 'CHASE'; // Dynamic chase camera view ideal for autonomous demonstration
+    } else {
+      this.autoDrive = false;
+      this.cameraMode = 'COCKPIT';
+    }
+
+    const statusSpan = document.getElementById('autodrive-status');
+    const btnAuto = document.getElementById('btn-toggle-autodrive');
+    if (statusSpan) statusSpan.textContent = this.autoDrive ? 'ON' : 'OFF';
+    if (btnAuto) btnAuto.classList.toggle('active', this.autoDrive);
+
+    const banner = document.getElementById('hud-autopilot-banner');
+    if (banner) banner.classList.toggle('hidden', !this.autoDrive);
+
+    const camLabel = document.getElementById('cam-mode-label');
+    if (camLabel) camLabel.textContent = this.cameraMode;
+
+    // Reset monitored telemetry channel to Car 0
+    this.setMonitoredCarIndex(0);
 
     if (this.audio) this.audio.init();
 
@@ -546,16 +585,21 @@ class F1SimApp {
   }
 
   updateSimulation(dt, sessionTimeMs) {
-    // 1. Player Vehicle Physics Update
-    const playerInput = {
-      throttle: this.keys.forward ? 1.0 : 0.0,
-      brake: this.keys.backward ? 1.0 : 0.0,
-      steering: (this.keys.left ? -1.0 : 0.0) + (this.keys.right ? 1.0 : 0.0),
-      handbrake: this.keys.handbrake
-    };
-
+    // 1. Lead / Player Vehicle Update (Autonomous AI or Manual Keyboard Input)
     const prevLap = this.playerPhysics.lapCount;
-    this.playerPhysics.update(dt, playerInput);
+
+    if (this.autoDrive && this.playerAIController) {
+      const otherCarPhys = this.aiCars.map(c => c.physics);
+      this.playerAIController.update(dt, otherCarPhys);
+    } else {
+      const playerInput = {
+        throttle: this.keys.forward ? 1.0 : 0.0,
+        brake: this.keys.backward ? 1.0 : 0.0,
+        steering: (this.keys.left ? -1.0 : 0.0) + (this.keys.right ? 1.0 : 0.0),
+        handbrake: this.keys.handbrake
+      };
+      this.playerPhysics.update(dt, playerInput);
+    }
 
     if (this.playerPhysics.lapCount > prevLap) {
       this.telemetry.onLapComplete(prevLap);
@@ -565,23 +609,29 @@ class F1SimApp {
       }
     }
 
-    // 2. All 5 AI Opponents Update with Collision Avoidance
-    if (this.session.mode === 'QUICK_RACE') {
+    // 2. All 5 AI Opponents Update with Collision Avoidance & Multi-Car Racing Intelligence
+    if (this.session.mode === 'QUICK_RACE' || this.session.mode === 'AUTONOMOUS_RACE') {
       this.aiControllers.forEach((ctrl, idx) => {
-        const otherAI = this.aiCars[(idx + 1) % this.aiCars.length].physics;
-        ctrl.update(dt, this.playerPhysics, otherAI);
+        const otherCars = [this.playerPhysics];
+        this.aiCars.forEach((otherAi, oIdx) => {
+          if (oIdx !== idx) otherCars.push(otherAi.physics);
+        });
+        ctrl.update(dt, otherCars);
       });
     }
 
-    // 3. Audio Update
+    // Active monitored target for acoustics, pitwall telemetry & 3D camera
+    const monPhys = this.getMonitoredPhysics();
+
+    // 3. Audio Update (tracks monitored vehicle RPM and acoustics)
     if (this.audio) {
       this.audio.update(
-        this.playerPhysics.rpm,
-        this.playerPhysics.speedKmh,
-        this.playerPhysics.throttle,
-        this.playerPhysics.brake,
-        this.playerPhysics.wheelSlip,
-        this.playerPhysics.trackProgress.isOnKerb
+        monPhys.rpm,
+        monPhys.speedKmh,
+        monPhys.throttle,
+        monPhys.brake,
+        monPhys.wheelSlip,
+        monPhys.trackProgress ? monPhys.trackProgress.isOnKerb : false
       );
     }
 
@@ -590,18 +640,18 @@ class F1SimApp {
     if (packet) {
       this.bridge.sendVirtualTelemetry(packet);
 
-      // Pass all AI cars to dashboard and track map
+      // Pass all AI cars and monitored target to dashboard and track map
       const aiPhysicsList = this.aiCars.map(c => c.physics);
       this.dashboard.update(
         packet,
         this.playerPhysics,
         aiPhysicsList,
-        null,
+        monPhys,
         this.session
       );
 
       if (this.trackMap) {
-        this.trackMap.render(this.playerPhysics, aiPhysicsList);
+        this.trackMap.render(this.playerPhysics, aiPhysicsList, monPhys);
       }
 
       this.updateCockpitHUD(packet);
@@ -635,7 +685,7 @@ class F1SimApp {
 
     // Scaled Track Spline
     const samples = this.track.samples;
-    const bounds = this.trackMap ? this.trackMap.bounds : { minX: -520, maxX: 120, minZ: -460, maxZ: 620 };
+    const bounds = (this.trackMap && this.trackMap.bounds) ? this.trackMap.bounds : { minX: -520, maxX: 120, minZ: -460, maxZ: 620 };
     const scale = (w - 24) / Math.max(bounds.maxX - bounds.minX, bounds.maxZ - bounds.minZ);
     const midX = (bounds.minX + bounds.maxX) / 2;
     const midZ = (bounds.minZ + bounds.maxZ) / 2;
@@ -682,7 +732,9 @@ class F1SimApp {
     const sec = Math.floor(totalSec % 60);
     const ms = Math.floor((totalSec % 1) * 1000);
     if (tvTimeEl) tvTimeEl.textContent = `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}.${String(ms).padStart(3,'0')}`;
-    if (tvBestEl) tvBestEl.textContent = this.playerPhysics.bestLapTime > 0 ? `${this.playerPhysics.bestLapTime.toFixed(3)}s` : '--:--.---';
+    const monPhys = this.getMonitoredPhysics();
+    if (lapEl) lapEl.textContent = `LAP ${monPhys.lapCount}/${this.session.totalLaps}`;
+    if (tvBestEl) tvBestEl.textContent = monPhys.bestLapTime > 0 ? `${monPhys.bestLapTime.toFixed(3)}s` : '--:--.---';
     if (tvDeltaEl) {
       const d = packet.delta_s || 0;
       tvDeltaEl.textContent = `${d > 0 ? '+' : ''}${d.toFixed(3)}`;
@@ -773,13 +825,23 @@ class F1SimApp {
   // CAMERA SYSTEM: COCKPIT POV, DYNAMIC CHASE, TV BROADCAST
   // --------------------------------------------------------------------------
   updateCamera(dt) {
-    const p = this.playerPhysics;
+    const p = this.getMonitoredPhysics();
     if (!p) return;
+
+    const monitoredModel = this.getMonitoredCarModel();
+
+    // Ensure all car helmets are visible except the one currently driven in Cockpit mode
+    const allCars = this.getAllCars();
+    allCars.forEach(c => {
+      if (c.model && c.model.setHelmetVisible) {
+        c.model.setHelmetVisible(true);
+      }
+    });
 
     if (this.cameraMode === 'COCKPIT') {
       // True Driver POV through Halo Hoop & Over 3D Steering Wheel
-      if (this.playerCar && this.playerCar.setHelmetVisible) {
-        this.playerCar.setHelmetVisible(false);
+      if (monitoredModel && monitoredModel.setHelmetVisible) {
+        monitoredModel.setHelmetVisible(false);
       }
       const forwardX = Math.sin(p.heading);
       const forwardZ = Math.cos(p.heading);
