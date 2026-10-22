@@ -357,3 +357,144 @@
   border-radius: 2px;
   font-size: 10px;
 }
+
+
+/* Live Car Telemetry Channel Selector (Autonomous & Multi-Car Monitoring) */
+.telemetry-car-channel-bar {
+  background: #090d14;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.channel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-dim);
+}
+
+.channel-title .pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--telemetry-cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 6px var(--telemetry-cyan);
+  animation: autoPulse 1.2s infinite alternate;
+}
+
+.channel-label {
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+.active-driver-badge {
+  background: rgba(0, 229, 255, 0.12);
+  border: 1px solid var(--telemetry-cyan);
+  color: var(--telemetry-cyan);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  margin-left: auto;
+  transition: all 0.2s ease;
+}
+
+.driver-pills-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+.driver-pill {
+  background: #0c121c;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  color: #cbd5e1;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  transition: all 0.15s ease;
+  position: relative;
+  user-select: none;
+}
+
+.driver-pill:hover {
+  background: #141f2e;
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.driver-pill.active {
+  background: rgba(0, 229, 255, 0.14);
+  border-color: var(--telemetry-cyan);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.25);
+}
+
+.pill-key {
+  background: rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  font-size: 9px;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-weight: 800;
+}
+
+.driver-pill.active .pill-key {
+  background: var(--telemetry-cyan);
+  color: #060a12;
+}
+
+.pill-color-bar {
+  width: 4px;
+  height: 14px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.pill-num {
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+.pill-code {
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+/* Leaderboard interactive row highlighting */
+.leaderboard-table tr.row-monitored {
+  background: rgba(0, 229, 255, 0.14) !important;
+  border-left: 3px solid var(--telemetry-cyan) !important;
+}
+
+.leaderboard-table tr:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.live-telemetry-badge {
+  display: inline-block;
+  background: rgba(0, 229, 255, 0.2);
+  color: var(--telemetry-cyan);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-left: 4px;
+  vertical-align: middle;
+}

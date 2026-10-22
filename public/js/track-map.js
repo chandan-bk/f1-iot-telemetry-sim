@@ -56,7 +56,7 @@ class TrackMapRenderer {
     return { x: cx, y: cy, scale: scale };
   }
 
-  render(playerPhysics, ...aiCarsList) {
+  render(playerPhysics, aiCarsList, monitoredCarPhysics) {
     const ctx = this.ctx;
     const w = this.canvas.width;
     const h = this.canvas.height;
@@ -160,6 +160,17 @@ class TrackMapRenderer {
       // Heading vector arrow
       const fX = Math.sin(car.p.heading) * 10;
       const fY = Math.cos(car.p.heading) * 10;
+
+      // Highlight Monitored Car with Target Radar Reticle
+      if (monitoredCarPhysics && car.p === monitoredCarPhysics) {
+        ctx.strokeStyle = '#00e5ff';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.arc(cPos.x, cPos.y, 12, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
 
       // Incident warning glow if off track
       if (car.p.trackProgress.isOffTrack) {

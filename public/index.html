@@ -26,10 +26,17 @@
       </div>
 
       <div class="menu-actions-grid">
-        <div class="menu-card featured" id="btn-start-quick-race">
+        <div class="menu-card featured auto-race-card" id="btn-start-auto-race">
+          <div class="menu-card-badge">★ IDEAL FOR PRESENTATIONS</div>
+          <div class="menu-card-icon">🤖</div>
+          <div class="menu-card-title">Autonomous AI Race (IoT Monitor)</div>
+          <div class="menu-card-desc">All 6 cars race automatically with competitive AI. Sit back as Chief Race Engineer: observe live 20Hz sensor streaming, switch telemetry between drivers, and monitor automated diagnostics hands-free.</div>
+        </div>
+
+        <div class="menu-card" id="btn-start-quick-race">
           <div class="menu-card-icon">🏎️</div>
-          <div class="menu-card-title">Quick Race (3 Cars)</div>
-          <div class="menu-card-desc">Race against AI opponents Marco Rossi and Elena Rostova. Complete 2 laps with live telemetry, start countdown, and pitwall alerts.</div>
+          <div class="menu-card-title">Quick Race (Manual Drive)</div>
+          <div class="menu-card-desc">Drive the race car yourself against 5 AI opponents with full keyboard controls, start countdown, and pitwall alerts.</div>
         </div>
 
         <div class="menu-card" id="btn-start-time-trial">
@@ -46,6 +53,8 @@
       </div>
 
       <div class="controls-help-strip">
+        <span><span class="key-tag">P</span> Auto-Drive Toggle</span>
+        <span><span class="key-tag">1 - 6</span> Switch Car Sensor</span>
         <span><span class="key-tag">W / ↑</span> Accelerate</span>
         <span><span class="key-tag">S / ↓</span> Brake</span>
         <span><span class="key-tag">A / D</span> Steer</span>
@@ -69,6 +78,7 @@
         <span class="brand-tag">F1 IoT PITWALL</span>
         <span id="dash-mode-badge" class="mode-pill mode-sim">● SIMULATION INGEST</span>
         <button id="btn-toggle-iot-mode" class="nav-btn" title="Switch between Simulation and Hardware IoT Mode">Switch Ingest Mode</button>
+        <button id="btn-toggle-autodrive" class="nav-btn mode-autodrive-btn" title="Toggle Autonomous AI Driving (Hotkey: P)">🤖 AUTO-DRIVE: <span id="autodrive-status">OFF</span></button>
       </div>
 
       <div class="nav-center">
@@ -156,6 +166,13 @@
             </div>
           </div>
 
+          
+          <!-- Autonomous AI Autopilot Status Banner -->
+          <div id="hud-autopilot-banner" class="hud-autopilot-pill hidden">
+            <span class="autopilot-pulse"></span>
+            <span class="autopilot-text">🤖 AUTONOMOUS AI RACE ACTIVE &bull; PRESS [P] FOR MANUAL OVERRIDE</span>
+          </div>
+
           <!-- Top Center: Track Limits & Barrier Collision Alert Banner -->
           <div id="hud-track-warning-banner" class="hud-warning-pill hidden">
             <span class="warning-icon">⚠️</span>
@@ -190,6 +207,16 @@
             <span class="status-label">PROGRESS:</span>
             <span class="status-val" id="dash-lap">LAP 1 / 2</span>
           </div>
+        </div>
+
+        <!-- Live Car Telemetry Channel Selector (Autonomous & Multi-Car Monitoring) -->
+        <div class="telemetry-car-channel-bar">
+          <div class="channel-title">
+            <span class="pulse-dot"></span>
+            <span class="channel-label">MONITORED CAR SENSOR INGEST:</span>
+            <span class="active-driver-badge" id="active-driver-badge">#44 CARLOS VANCE (APEX RACING GP)</span>
+          </div>
+          <div class="driver-pills-row" id="driver-pills-row"></div>
         </div>
 
         <!-- Metrics Overview Grid -->
